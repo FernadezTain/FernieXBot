@@ -17,7 +17,7 @@ except ImportError:
 match = re.match(r"(\d+)", "Бот запускается...")
 if match:
     print(match.group(1))
-import pymorphy2
+import pymorphy3
 import requests
 
 from telegram import Update, LabeledPrice, InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery, \
@@ -26122,8 +26122,7 @@ async def idea_callback_handler(update, context):
 
     await query.message.edit_reply_markup(reply_markup=None)
 
-
-morph = pymorphy2.MorphAnalyzer()
+morph = pymorphy3.MorphAnalyzer()
 
 # Путь к файлу фраз
 PHRASES_FILE = 'ai_phrases.json'
