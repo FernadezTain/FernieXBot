@@ -1,6 +1,6 @@
 python-telegram-bot>=20.0
 aiosqlite
-pymorphy2
+pymorphy3
 requests
 psutil
 gputil
