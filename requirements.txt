@@ -1,0 +1,11 @@
+python-telegram-bot>=20.0
+aiosqlite
+pymorphy2
+requests
+psutil
+gputil
+yoomoney
+pytz
+apscheduler
+pillow
+nest_asyncio
