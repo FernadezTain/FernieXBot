@@ -26524,6 +26524,7 @@ def register_ai_usage(user_id: str):
     usage[user_id].append(now)
 
     save_usage(usage)
+
 async def ai_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.message.from_user.id)
 
@@ -26723,12 +26724,12 @@ async def ai_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 AI_MODELS = {
     "ClaudeOpus_45": {
         "name": "Solar Pro 3",
-        "api_key": "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",
+        "api_key": "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",
         "model": "@preset/solar-pro-3"
     },
     "step35_flash": {
         "name": "Step 3.5 Flash",
-        "api_key": "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",
+        "api_key": "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",
         "model": "@preset/step-flash"
     },
     "grok41fast": {
@@ -26738,7 +26739,7 @@ AI_MODELS = {
     },
     "Grok": {
         "name": "Grok 3 Mini Beta",
-        "api_key": "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",
+        "api_key": "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",
         "model": "@preset/grok"
     },
 }
