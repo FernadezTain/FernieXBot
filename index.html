@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>BotForge — Telegram Боты</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   BOTFORGE — style.css
+═══════════════════════════════════════════ */
+:root {
+  --bg: #0b0d14;
+  --surface: #13151f;
+  --card: #1a1d2e;
+  --card2: #1e2235;
+  --border: #252a3e;
+  --border2: #2e3352;
+  --accent: #6c63ff;
+  --accent2: #ff6584;
+  --green: #43e97b;
+  --yellow: #f7971e;
+  --blue: #4facfe;
+  --purple: #9b59b6;
+  --tg: #2AABEE;
+  --tg2: #229ED9;
+  --text: #e8eaf6;
+  --text2: #aab0cc;
+  --muted: #636880;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);position:relative}
+
+/* ── SCREENS ── */
+.screen{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.35s ease,transform 0.35s ease;
+  transform:translateY(12px);overflow:hidden;
+}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
+
+/* ══ BACKGROUND EFFECTS ══ */
+.menu-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);animation:orbFloat 8s ease-in-out infinite alternate}
+.orb1{width:350px;height:350px;background:rgba(108,99,255,0.18);top:-100px;left:-80px;animation-delay:0s}
+.orb2{width:280px;height:280px;background:rgba(42,171,238,0.12);bottom:-60px;right:-60px;animation-delay:-3s}
+.orb3{width:220px;height:220px;background:rgba(67,233,123,0.08);top:40%;left:50%;transform:translate(-50%,-50%);animation-delay:-5s}
+@keyframes orbFloat{from{transform:translate(0,0) scale(1)}to{transform:translate(20px,30px) scale(1.12)}}
+.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(108,99,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,0.04) 1px,transparent 1px);background-size:40px 40px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes floatLogo{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+
+/* ══════════════════════════════
+   LANDING / MENU SCREEN
+══════════════════════════════ */
+#menuScreen{overflow-y:auto}
+.landing-wrap{
+  position:relative;z-index:2;
+  min-height:100%;display:flex;flex-direction:column;
+  padding:0 0 40px;
+}
+
+/* HERO */
+.hero{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:60px 24px 40px;gap:20px;
+  animation:fadeUp 0.6s ease both;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 16px;border-radius:99px;
+  background:rgba(42,171,238,0.1);border:1px solid rgba(42,171,238,0.3);
+  font-size:0.78rem;font-weight:700;color:var(--tg);letter-spacing:0.06em;text-transform:uppercase;
+}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--tg);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.5)}}
+.hero-logo{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.logo-icon-wrap{
+  width:80px;height:80px;border-radius:24px;
+  background:linear-gradient(135deg,var(--tg),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;
+  box-shadow:0 0 40px rgba(42,171,238,0.35);
+  animation:floatLogo 3s ease-in-out infinite alternate;
+}
+.logo-title{
+  font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:900;
+  background:linear-gradient(135deg,#fff 30%,var(--tg));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:-0.02em;
+}
+.logo-sub{font-size:1rem;color:var(--text2);font-weight:600;max-width:320px;line-height:1.5}
+
+.btn-cta{
+  position:relative;border:none;background:none;cursor:pointer;
+  animation:fadeUp 0.6s 0.2s ease both;
+}
+.btn-cta-inner{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:18px 40px;
+  background:linear-gradient(135deg,var(--tg),var(--accent));
+  border-radius:var(--radius);
+  font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:white;
+  letter-spacing:0.02em;position:relative;z-index:1;
+  transition:transform 0.15s,box-shadow 0.15s;
+}
+.btn-cta:active .btn-cta-inner{transform:scale(0.97)}
+.btn-cta-glow{
+  position:absolute;inset:0;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--tg),var(--accent));
+  filter:blur(20px);opacity:0.5;z-index:0;transition:opacity 0.2s;
+}
+.btn-cta:hover .btn-cta-glow{opacity:0.8}
+
+/* FEATURES */
+.features-section{
+  padding:0 20px;max-width:520px;margin:0 auto;width:100%;
+  display:flex;flex-direction:column;gap:12px;
+  animation:fadeUp 0.6s 0.1s ease both;
+}
+.section-label{
+  font-size:0.75rem;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.08em;text-align:center;margin-bottom:4px;
+}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.feature-card{
+  background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:16px 14px;display:flex;flex-direction:column;gap:8px;
+  transition:transform 0.2s,border-color 0.2s;
+}
+.feature-card:hover{transform:translateY(-3px);border-color:rgba(108,99,255,0.4)}
+.f-icon{font-size:1.6rem;line-height:1}
+.f-title{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text)}
+.f-desc{font-size:0.78rem;color:var(--text2);line-height:1.5;font-weight:500}
+
+/* PROCESS */
+.process-section{
+  padding:0 20px;max-width:520px;margin:0 auto;width:100%;
+  animation:fadeUp 0.6s 0.15s ease both;
+}
+.process-steps{
+  background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:18px 18px;display:flex;flex-direction:column;gap:0;
+}
+.process-step{
+  display:flex;align-items:flex-start;gap:14px;padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.process-step:last-child{border-bottom:none;padding-bottom:0}
+.process-step:first-child{padding-top:0}
+.step-num{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--tg));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:900;color:white;
+}
+.step-info{flex:1}
+.step-title{font-weight:700;font-size:0.9rem;color:var(--text);margin-bottom:2px}
+.step-desc{font-size:0.78rem;color:var(--text2);line-height:1.5;font-weight:500}
+
+/* PRICING */
+.pricing-section{
+  padding:0 20px;max-width:520px;margin:0 auto;width:100%;
+  animation:fadeUp 0.6s 0.2s ease both;
+}
+.pricing-card{
+  background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:18px;display:flex;flex-direction:column;gap:10px;
+}
+.pricing-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid var(--border);
+}
+.pricing-row:last-child{border-bottom:none;padding-bottom:0}
+.pr-label{font-size:0.85rem;font-weight:600;color:var(--text2)}
+.pr-val{
+  font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:800;color:var(--text);
+  display:flex;align-items:center;gap:6px;
+}
+.star-icon{color:var(--yellow)}
+
+/* FOOTER */
+.landing-footer{
+  text-align:center;padding:16px;font-size:0.78rem;color:var(--muted);font-weight:600;
+  animation:fadeUp 0.6s 0.3s ease both;
+}
+
+/* scrollbar for landing */
+#menuScreen::-webkit-scrollbar{width:3px}
+#menuScreen::-webkit-scrollbar-track{background:transparent}
+#menuScreen::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* ══════════════════════════════
+   ORDER SCREEN
+══════════════════════════════ */
+#orderScreen{justify-content:flex-start}
+.order-header{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px 12px;border-bottom:1px solid var(--border);
+  flex-shrink:0;background:var(--surface);
+}
+.btn-back{
+  width:38px;height:38px;border-radius:10px;border:1px solid var(--border2);
+  background:var(--card);color:var(--text2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background 0.15s,color 0.15s;font-size:1.1rem;
+}
+.btn-back:active{background:var(--card2);color:var(--text)}
+.order-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--text)}
+
+/* STEP INDICATOR */
+.step-indicator{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:14px 20px 10px;flex-shrink:0;
+}
+.step-dot{
+  width:28px;height:6px;border-radius:99px;
+  background:var(--border2);transition:all 0.3s ease;
+}
+.step-dot.active{background:linear-gradient(90deg,var(--tg),var(--accent));width:40px}
+.step-dot.done{background:var(--green)}
+
+.order-body{
+  flex:1;overflow-y:auto;padding:20px 20px 32px;
+  display:flex;flex-direction:column;gap:0;
+  -webkit-overflow-scrolling:touch;
+}
+.order-body::-webkit-scrollbar{width:3px}
+.order-body::-webkit-scrollbar-track{background:transparent}
+.order-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* STEP PANELS */
+.step-panel{
+  display:none;flex-direction:column;gap:18px;
+  animation:fadeUp 0.35s ease both;
+}
+.step-panel.active{display:flex}
+
+.step-heading{
+  font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);
+  line-height:1.3;
+}
+.step-sub{font-size:0.88rem;color:var(--text2);font-weight:500;line-height:1.5;margin-top:2px}
+
+/* SERVICE CARDS */
+.service-cards{display:flex;flex-direction:column;gap:12px}
+.service-card{
+  background:var(--card);border:2px solid var(--border2);border-radius:var(--radius);
+  padding:18px 16px;cursor:pointer;transition:all 0.2s ease;
+  display:flex;align-items:center;gap:14px;
+  position:relative;overflow:hidden;
+}
+.service-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(42,171,238,0.08),rgba(108,99,255,0.08));
+  opacity:0;transition:opacity 0.2s;
+}
+.service-card:hover{transform:translateY(-2px);border-color:var(--border2)}
+.service-card:hover::before{opacity:1}
+.service-card.selected{border-color:var(--tg);box-shadow:0 0 0 1px var(--tg),0 4px 24px rgba(42,171,238,0.2)}
+.service-card.selected::before{opacity:1}
+.service-card:active{transform:scale(0.98)}
+.sc-icon{font-size:2rem;flex-shrink:0;position:relative;z-index:1}
+.sc-info{flex:1;position:relative;z-index:1}
+.sc-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--text);margin-bottom:3px}
+.sc-desc{font-size:0.78rem;color:var(--text2);font-weight:500;line-height:1.4}
+.sc-check{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--border2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;transition:all 0.2s;font-size:0.75rem;
+}
+.service-card.selected .sc-check{background:var(--tg);border-color:var(--tg);color:white}
+
+/* TOGGLE SWITCH */
+.toggle-row{
+  background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:18px 16px;display:flex;align-items:center;gap:14px;
+}
+.toggle-info{flex:1}
+.toggle-label{font-weight:700;font-size:0.95rem;color:var(--text);margin-bottom:3px}
+.toggle-sub{font-size:0.78rem;color:var(--text2);font-weight:500}
+.toggle-switch{position:relative;width:54px;height:30px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;border-radius:99px;
+  background:var(--border2);cursor:pointer;transition:all 0.3s;
+}
+.toggle-slider::before{
+  content:'';position:absolute;
+  width:22px;height:22px;border-radius:50%;
+  left:4px;bottom:4px;
+  background:white;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.toggle-switch input:checked + .toggle-slider{background:linear-gradient(135deg,var(--tg),var(--accent))}
+.toggle-switch input:checked + .toggle-slider::before{transform:translateX(24px)}
+
+/* DURATION PICKER */
+.duration-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+}
+.dur-btn{
+  padding:14px 8px;border:2px solid var(--border2);border-radius:var(--radius-sm);
+  background:var(--card);cursor:pointer;transition:all 0.2s;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:'DM Sans',sans-serif;
+}
+.dur-btn:hover{border-color:var(--border2);background:var(--card2);transform:translateY(-2px)}
+.dur-btn.selected{border-color:var(--tg);background:rgba(42,171,238,0.08);box-shadow:0 0 0 1px var(--tg)}
+.dur-btn:active{transform:scale(0.96)}
+.dur-period{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text)}
+.dur-price{font-size:0.72rem;font-weight:700;color:var(--muted)}
+.dur-btn.selected .dur-price{color:var(--tg)}
+
+/* USERNAME INPUT */
+.input-group{display:flex;flex-direction:column;gap:10px}
+.input-label{font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+.input-wrap{position:relative}
+.input-prefix{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--tg);
+  pointer-events:none;
+}
+.text-input{
+  width:100%;padding:14px 14px 14px 34px;
+  background:var(--card);border:2px solid var(--border2);border-radius:var(--radius-sm);
+  font-family:'JetBrains Mono',monospace;font-size:0.95rem;font-weight:600;color:var(--text);
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+}
+.text-input:focus{border-color:var(--tg);box-shadow:0 0 0 3px rgba(42,171,238,0.15)}
+.text-input::placeholder{color:var(--muted);font-weight:500}
+
+/* CONFIRMATION CARD */
+.confirm-card{
+  background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);
+  overflow:hidden;
+}
+.confirm-header{
+  background:linear-gradient(135deg,rgba(42,171,238,0.15),rgba(108,99,255,0.1));
+  border-bottom:1px solid var(--border2);
+  padding:16px 18px;display:flex;align-items:center;gap:12px;
+}
+.confirm-header-icon{font-size:1.8rem}
+.confirm-header-text{}
+.confirm-header-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--text)}
+.confirm-header-sub{font-size:0.78rem;color:var(--text2);font-weight:500;margin-top:2px}
+.confirm-rows{padding:14px 18px;display:flex;flex-direction:column;gap:0}
+.confirm-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.confirm-row:last-child{border-bottom:none}
+.cr-key{font-size:0.82rem;color:var(--text2);font-weight:600}
+.cr-val{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:5px}
+.cr-val .star-icon{color:var(--yellow)}
+
+/* PROMO SECTION */
+.promo-section{display:flex;flex-direction:column;gap:10px}
+.promo-label{font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+.promo-wrap{display:flex;gap:8px}
+.promo-input{
+  flex:1;padding:12px 14px;
+  background:var(--card);border:2px solid var(--border2);border-radius:var(--radius-sm);
+  font-family:'JetBrains Mono',monospace;font-size:0.88rem;font-weight:600;color:var(--text);
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;text-transform:uppercase;
+  letter-spacing:0.06em;
+}
+.promo-input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(247,151,30,0.15)}
+.promo-input.applied{border-color:var(--green);box-shadow:0 0 0 3px rgba(67,233,123,0.15);color:var(--green)}
+.btn-promo{
+  padding:12px 14px;border:2px solid var(--border2);border-radius:var(--radius-sm);
+  background:var(--card2);color:var(--text2);font-weight:700;font-size:0.85rem;
+  cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.btn-promo:hover{border-color:var(--yellow);color:var(--yellow)}
+.promo-status{font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.promo-status.ok{color:var(--green)}
+.promo-status.err{color:var(--accent2)}
+
+/* PRICE HIGHLIGHT */
+.price-highlight{
+  background:linear-gradient(135deg,rgba(247,151,30,0.1),rgba(108,99,255,0.08));
+  border:1px solid rgba(247,151,30,0.3);
+  border-radius:var(--radius);padding:16px 18px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ph-label{font-size:0.88rem;font-weight:700;color:var(--text2)}
+.ph-val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:900;color:var(--yellow);display:flex;align-items:center;gap:8px}
+.ph-val-old{font-size:1rem;color:var(--muted);text-decoration:line-through;margin-right:4px}
+
+/* BUTTONS */
+.btn-primary{
+  width:100%;padding:16px;border:none;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--tg),var(--accent));
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:white;
+  cursor:pointer;transition:all 0.15s;
+  box-shadow:0 4px 20px rgba(42,171,238,0.3);letter-spacing:0.02em;
+}
+.btn-primary:active{transform:scale(0.97)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-pay{
+  width:100%;padding:17px;border:none;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--yellow),#f39c12);
+  font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:900;color:#0b0d14;
+  cursor:pointer;transition:all 0.15s;
+  box-shadow:0 4px 24px rgba(247,151,30,0.4);letter-spacing:0.02em;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-pay:active{transform:scale(0.97)}
+
+/* SUCCESS BADGE */
+.success-info{
+  background:rgba(67,233,123,0.08);border:1px solid rgba(67,233,123,0.25);
+  border-radius:var(--radius-sm);padding:12px 14px;
+  font-size:0.8rem;color:var(--green);font-weight:600;line-height:1.5;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.success-info-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+
+/* @media */
+@media(max-width:390px){
+  .logo-title{font-size:2.2rem}
+  .feature-grid{grid-template-columns:1fr}
+  .duration-grid{grid-template-columns:repeat(2,1fr)}
+  .step-heading{font-size:1.1rem}
+}
+@media(max-height:680px){
+  .hero{padding:30px 20px 24px}
+  .logo-icon-wrap{width:60px;height:60px;font-size:1.8rem}
+  .logo-title{font-size:2rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LANDING ══ -->
+<div class="screen active" id="menuScreen">
+  <div class="menu-bg">
+    <div class="grid-lines"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+  <div class="landing-wrap">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-badge"><span class="hero-badge-dot"></span> Telegram Боты — разработка</div>
+      <div class="hero-logo">
+        <div class="logo-icon-wrap">🤖</div>
+        <h1 class="logo-title">BotForge</h1>
+        <p class="logo-sub">Создаём умных Telegram-ботов под ваши задачи — быстро, надёжно и с поддержкой</p>
+      </div>
+      <button class="btn-cta" onclick="showOrder()">
+        <div class="btn-cta-inner">⚡ Заказать бота</div>
+        <div class="btn-cta-glow"></div>
+      </button>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="features-section">
+      <div class="section-label">Что мы делаем</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="f-icon">🎯</div>
+          <div class="f-title">Боты под задачу</div>
+          <div class="f-desc">Разработка с нуля по вашему техническому заданию</div>
+        </div>
+        <div class="feature-card">
+          <div class="f-icon">🔧</div>
+          <div class="f-title">Поддержка</div>
+          <div class="f-desc">Продление обновлений и сопровождение готовых ботов</div>
+        </div>
+        <div class="feature-card">
+          <div class="f-icon">☁️</div>
+          <div class="f-title">Хостинг</div>
+          <div class="f-desc">Установим и настроим вашего бота на сервере</div>
+        </div>
+        <div class="feature-card">
+          <div class="f-icon">⭐</div>
+          <div class="f-title">Telegram Stars</div>
+          <div class="f-desc">Оплата через нативную платёжную систему Telegram</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCESS -->
+    <div class="process-section" style="margin-top:20px">
+      <div class="section-label" style="margin-bottom:10px;text-align:center">Как это работает</div>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="step-num">1</div>
+          <div class="step-info">
+            <div class="step-title">Оформите заказ</div>
+            <div class="step-desc">Выберите услугу и заполните детали прямо на сайте</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">2</div>
+          <div class="step-info">
+            <div class="step-title">Оплатите через Telegram</div>
+            <div class="step-desc">Безопасная оплата в Stars — напрямую через наш бот</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">3</div>
+          <div class="step-info">
+            <div class="step-title">Получите результат</div>
+            <div class="step-desc">Мы свяжемся и передадим готового бота или активируем продление</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHODS -->
+    <div class="pricing-section" style="margin-top:20px">
+      <div class="section-label" style="margin-bottom:10px;text-align:center">Способы оплаты</div>
+      <div class="pricing-card">
+        <div class="pricing-row">
+          <span class="pr-label">⭐ Telegram Stars</span>
+          <span class="pr-val" style="font-size:0.8rem;color:var(--green);font-weight:700">Доступно</span>
+        </div>
+        <div class="pricing-row">
+          <span class="pr-label">💳 Банковская карта</span>
+          <span class="pr-val" style="font-size:0.8rem;color:var(--tg);font-weight:700">Через поддержку</span>
+        </div>
+      </div>
+      <div class="success-info" style="margin-top:10px">
+        <span class="success-info-icon">💳</span>
+        <span>Оплата картой доступна через поддержку. Напишите <b style="color:var(--tg)">@FernieXBot</b> — менеджер проведёт оплату вручную.</span>
+      </div>
+    </div>
+
+    <div class="landing-footer" style="margin-top:24px">
+      Telegram Stars · Банковская карта · Безопасно · Быстро
+    </div>
+  </div>
+</div>
+
+<!-- ══ ORDER SCREEN ══ -->
+<div class="screen" id="orderScreen">
+  <div class="menu-bg">
+    <div class="grid-lines"></div>
+    <div class="orb orb1" style="width:200px;height:200px;opacity:0.5"></div>
+  </div>
+  <div class="order-header">
+    <button class="btn-back" id="backBtn" onclick="goBack()">←</button>
+    <span class="order-title">Оформление заказа</span>
+  </div>
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step-dot active" id="dot0"></div>
+    <div class="step-dot" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="step-dot" id="dot3"></div>
+  </div>
+  <div class="order-body">
+
+    <!-- STEP 0: Service Selection -->
+    <div class="step-panel active" id="step0">
+      <div>
+        <div class="step-heading">Выберите услугу</div>
+        <div class="step-sub">Что вам нужно сделать?</div>
+      </div>
+      <div class="service-cards">
+        <div class="service-card" id="sc-new" onclick="selectService('new')">
+          <div class="sc-icon">🤖</div>
+          <div class="sc-info">
+            <div class="sc-title">Создание бота по запросу</div>
+            <div class="sc-desc">Разработаем бота с нуля по вашим требованиям</div>
+          </div>
+          <div class="sc-check" id="ck-new"></div>
+        </div>
+        <div class="service-card" id="sc-renew" onclick="selectService('renew')">
+          <div class="sc-icon">🔄</div>
+          <div class="sc-info">
+            <div class="sc-title">Продление поддержки обновлений</div>
+            <div class="sc-desc">Продлите активную поддержку вашего существующего бота</div>
+          </div>
+          <div class="sc-check" id="ck-renew"></div>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-step0" onclick="nextStep()" disabled>Далее →</button>
+    </div>
+
+    <!-- STEP 1: Hosting (only for new bot) -->
+    <div class="step-panel" id="step1">
+      <div>
+        <div class="step-heading">Дополнительные услуги</div>
+        <div class="step-sub">Выберите, что нужно включить в заказ</div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">☁️ Установка на хостинг</div>
+          <div class="toggle-sub">Мы настроим и запустим бота на сервере</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="hostingToggle"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <button class="btn-primary" onclick="nextStep()">Далее →</button>
+    </div>
+
+    <!-- STEP 2: Duration (renew only) OR Bot name (new only) -->
+    <div class="step-panel" id="step2">
+      <!-- dynamic content injected by JS -->
+    </div>
+
+    <!-- STEP 3: Username (renew) / Confirm (new) / Confirm (renew after username) -->
+    <div class="step-panel" id="step3">
+      <!-- dynamic content injected by JS -->
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── STATE ── */
+let currentService = null; // 'new' | 'renew'
+let currentStep = 0;
+let selectedDuration = null;
+let botUsername = '';
+let hostingEnabled = false;
+let promoApplied = false;
+
+const PROMO_CODE = 'KEFIRXSEL';
+
+const PRICES = {
+  '10d':  { normal: 15,  promo: 1  },
+  '15d':  { normal: 20,  promo: 3  },
+  '30d':  { normal: 50,  promo: 15 },
+  '60d':  { normal: 85,  promo: 20 },
+  '6m':   { normal: 380, promo: 100},
+  '1y':   { normal: 715, promo: 200},
+};
+const DUR_LABELS = {
+  '10d':'10 дн.','15d':'15 дн.','30d':'30 дн.',
+  '60d':'60 дн.','6m':'6 мес.','1y':'1 год'
+};
+
+function showOrder(){
+  document.getElementById('menuScreen').classList.remove('active');
+  document.getElementById('orderScreen').classList.add('active');
+  currentStep = 0;
+  currentService = null;
+  selectedDuration = null;
+  botUsername = '';
+  promoApplied = false;
+  hostingEnabled = false;
+  // reset
+  document.querySelectorAll('.service-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.sc-check').forEach(c=>c.textContent='');
+  document.getElementById('btn-step0').disabled = true;
+  document.getElementById('hostingToggle').checked = false;
+  updateStepUI(0);
+  showStep(0);
+}
+
+function goBack(){
+  if(currentStep===0){
+    document.getElementById('orderScreen').classList.remove('active');
+    document.getElementById('menuScreen').classList.add('active');
+  } else {
+    currentStep--;
+    // skip step1 for renew when going back
+    if(currentService==='renew' && currentStep===1) currentStep--;
+    // if going back to step3 in renew (from confirm), rebuild username panel
+    if(currentService==='renew' && currentStep===3) buildRenewUsername();
+    showStep(currentStep);
+  }
+}
+
+function selectService(type){
+  currentService = type;
+  document.querySelectorAll('.service-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.sc-check').forEach(c=>c.textContent='');
+  document.getElementById('sc-'+type).classList.add('selected');
+  document.getElementById('ck-'+type).textContent='✓';
+  document.getElementById('btn-step0').disabled = false;
+}
+
+function nextStep(){
+  currentStep++;
+  // skip hosting step for renew
+  if(currentService==='renew' && currentStep===1) currentStep++;
+  buildDynamicSteps();
+  showStep(currentStep);
+}
+
+function updateStepUI(step){
+  const isRenew = currentService === 'renew';
+  const totalDots = isRenew ? 3 : 4;
+  let dotIdx = step;
+  if(step === 99) dotIdx = totalDots; // all done
+  else if(isRenew && step >= 2) dotIdx = step - 1;
+  for(let i=0;i<4;i++){
+    const dot = document.getElementById('dot'+i);
+    if(i >= totalDots){dot.style.display='none';continue;}
+    dot.style.display='';
+    dot.classList.remove('active','done');
+    if(i < dotIdx) dot.classList.add('done');
+    else if(i === dotIdx) dot.classList.add('active');
+  }
+}
+
+function showStep(n){
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('step'+Math.min(n,3)).classList.add('active');
+  updateStepUI(n);
+}
+
+function buildDynamicSteps(){
+  if(currentService==='new'){
+    buildNewSteps();
+  } else {
+    buildRenewSteps();
+  }
+}
+
+/* ── NEW BOT FLOW ── */
+// step2 = bot name, step3 = confirm
+function buildNewSteps(){
+  if(currentStep===2){
+    document.getElementById('step2').innerHTML = `
+      <div>
+        <div class="step-heading">Название вашего бота</div>
+        <div class="step-sub">Введите @username бота, если уже есть, или желаемое имя</div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Bot username</div>
+        <div class="input-wrap">
+          <span class="input-prefix">@</span>
+          <input class="text-input" id="newBotName" placeholder="my_awesome_bot" autocomplete="off" spellcheck="false"/>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="confirmNewBot()">Подтвердить →</button>
+    `;
+  }
+}
+
+function confirmNewBot(){
+  const val = document.getElementById('newBotName').value.trim().replace(/^@/,'');
+  if(!val){document.getElementById('newBotName').focus();return;}
+  botUsername = val;
+  // build step3 confirm
+  buildNewConfirm();
+  currentStep = 3;
+  showStep(3);
+}
+
+function buildNewConfirm(){
+  const hosting = document.getElementById('hostingToggle').checked;
+  hostingEnabled = hosting;
+  document.getElementById('step3').innerHTML = `
+    <div>
+      <div class="step-heading">Ваш заказ готов!</div>
+      <div class="step-sub">Проверьте детали и перейдите к оплате в Telegram</div>
+    </div>
+    <div class="confirm-card">
+      <div class="confirm-header">
+        <div class="confirm-header-icon">🤖</div>
+        <div class="confirm-header-text">
+          <div class="confirm-header-title">Создание бота по запросу</div>
+          <div class="confirm-header-sub">@${botUsername}</div>
+        </div>
+      </div>
+      <div class="confirm-rows">
+        <div class="confirm-row"><span class="cr-key">Услуга</span><span class="cr-val">Новый бот</span></div>
+        <div class="confirm-row"><span class="cr-key">Bot username</span><span class="cr-val">@${botUsername}</span></div>
+        <div class="confirm-row"><span class="cr-key">Установка на хостинг</span><span class="cr-val">${hosting?'✅ Да':'❌ Нет'}</span></div>
+        <div class="confirm-row"><span class="cr-key">Стоимость</span><span class="cr-val">По договорённости</span></div>
+      </div>
+    </div>
+    <div class="success-info"><span class="success-info-icon">ℹ️</span>После нажатия кнопки вы перейдёте в наш Telegram-бот. Там менеджер обсудит детали и стоимость создания.</div>
+    <button class="btn-pay" onclick="payNew()">
+      <span>✈️</span><span>Перейти в Telegram</span>
+    </button>
+  `;
+}
+
+function payNew(){
+  const hosting = hostingEnabled ? 'true' : 'false';
+  const name = botUsername;
+  // bnew_addition_bname
+  const payload = `bnew_${hosting}_${name}`;
+  window.open(`https://t.me/FernieXBot?start=${payload}`,'_blank');
+}
+
+/* ── RENEW FLOW ── */
+function buildRenewDuration(){
+  document.getElementById('step2').innerHTML = `
+    <div>
+      <div class="step-heading">Срок продления</div>
+      <div class="step-sub">Выберите, на какой период продлить поддержку</div>
+    </div>
+    <div class="duration-grid">
+      ${Object.entries(PRICES).map(([k,v])=>`
+        <div class="dur-btn" id="dur-${k}" onclick="selectDuration('${k}')">
+          <div class="dur-period">${DUR_LABELS[k]}</div>
+          <div class="dur-price" id="dur-price-${k}">⭐ ${v.normal} Stars</div>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn-primary" id="btn-dur" onclick="goToUsername()" disabled>Далее →</button>
+  `;
+}
+
+function buildRenewUsername(){
+  document.getElementById('step3').innerHTML = `
+    <div>
+      <div class="step-heading">Username бота</div>
+      <div class="step-sub">Введите @username бота, поддержку которого нужно продлить</div>
+    </div>
+    <div class="input-group">
+      <div class="input-label">Bot username</div>
+      <div class="input-wrap">
+        <span class="input-prefix">@</span>
+        <input class="text-input" id="renewBotName" placeholder="my_existing_bot" autocomplete="off" spellcheck="false"/>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="confirmRenew()">Подтвердить →</button>
+  `;
+}
+
+function buildRenewSteps(){
+  if(currentStep === 2) buildRenewDuration();
+  if(currentStep === 3) buildRenewUsername();
+}
+
+function selectDuration(k){
+  selectedDuration = k;
+  document.querySelectorAll('.dur-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('dur-'+k).classList.add('selected');
+  document.getElementById('btn-dur').disabled = false;
+}
+
+function goToUsername(){
+  if(!selectedDuration) return;
+  currentStep = 3;
+  buildRenewUsername();
+  showStep(3);
+}
+
+function confirmRenew(){
+  const val = document.getElementById('renewBotName').value.trim().replace(/^@/,'');
+  if(!val){document.getElementById('renewBotName').focus();return;}
+  botUsername = val;
+  // Update step indicator to show all done
+  currentStep = 4; // virtual step for confirm screen
+  buildRenewConfirm();
+  // Keep showing step3 panel but update dots to all-done
+  updateStepUI(99);
+}
+
+function buildRenewConfirm(){
+  const p = PRICES[selectedDuration];
+  const normalPrice = p.normal;
+  const promoPrice = p.promo;
+
+  document.getElementById('step3').innerHTML = `
+    <div>
+      <div class="step-heading">Подтверждение</div>
+      <div class="step-sub">Проверьте данные перед оплатой</div>
+    </div>
+    <div class="confirm-card">
+      <div class="confirm-header">
+        <div class="confirm-header-icon">🔄</div>
+        <div class="confirm-header-text">
+          <div class="confirm-header-title">Продление поддержки</div>
+          <div class="confirm-header-sub">@${botUsername}</div>
+        </div>
+      </div>
+      <div class="confirm-rows">
+        <div class="confirm-row"><span class="cr-key">Услуга</span><span class="cr-val">Продление</span></div>
+        <div class="confirm-row"><span class="cr-key">Бот</span><span class="cr-val">@${botUsername}</span></div>
+        <div class="confirm-row"><span class="cr-key">Срок</span><span class="cr-val">${DUR_LABELS[selectedDuration]}</span></div>
+      </div>
+    </div>
+    <div class="promo-section">
+      <div class="promo-label">Промокод <span style="color:var(--accent);font-size:0.68rem">(необязательно)</span></div>
+      <div class="promo-wrap">
+        <input class="promo-input" id="promoInput" placeholder="ВВЕДИТЕ КОД" maxlength="20" oninput="onPromoInput()"/>
+        <button class="btn-promo" onclick="applyPromo()">Применить</button>
+      </div>
+      <div class="promo-status" id="promoStatus" style="display:none"></div>
+    </div>
+    <div class="price-highlight">
+      <div class="ph-label">Итого к оплате</div>
+      <div class="ph-val" id="priceDisplay">
+        <span class="star-icon">⭐</span>
+        <span id="priceNumber">${normalPrice}</span>
+        <span style="font-size:0.9rem;color:var(--text2)">Stars</span>
+      </div>
+    </div>
+    <button class="btn-pay" onclick="payRenew()">
+      <span>⭐</span><span>Оплатить продление</span>
+    </button>
+  `;
+  promoApplied = false;
+}
+
+function onPromoInput(){
+  const v = document.getElementById('promoInput').value.trim().toUpperCase();
+  if(promoApplied && v !== PROMO_CODE){
+    promoApplied = false;
+    document.getElementById('promoInput').classList.remove('applied');
+    updatePriceDisplay(false);
+    document.getElementById('promoStatus').style.display='none';
+  }
+}
+
+function applyPromo(){
+  const v = document.getElementById('promoInput').value.trim().toUpperCase();
+  const status = document.getElementById('promoStatus');
+  if(v === PROMO_CODE){
+    promoApplied = true;
+    document.getElementById('promoInput').classList.add('applied');
+    status.style.display='flex';
+    status.className='promo-status ok';
+    status.textContent='✅ Промокод применён! Специальная цена активирована';
+    updatePriceDisplay(true);
+  } else {
+    promoApplied = false;
+    document.getElementById('promoInput').classList.remove('applied');
+    status.style.display='flex';
+    status.className='promo-status err';
+    status.textContent='❌ Неверный промокод';
+    updatePriceDisplay(false);
+  }
+}
+
+function updatePriceDisplay(promo){
+  const p = PRICES[selectedDuration];
+  const el = document.getElementById('priceDisplay');
+  if(promo){
+    el.innerHTML = `<span class="ph-val-old">⭐${p.normal}</span><span class="star-icon">⭐</span><span id="priceNumber">${p.promo}</span><span style="font-size:0.9rem;color:var(--text2)">Stars</span>`;
+  } else {
+    el.innerHTML = `<span class="star-icon">⭐</span><span id="priceNumber">${p.normal}</span><span style="font-size:0.9rem;color:var(--text2)">Stars</span>`;
+  }
+}
+
+function payRenew(){
+  const p = PRICES[selectedDuration];
+  const price = promoApplied ? p.promo : p.normal;
+  const promo = promoApplied ? PROMO_CODE : 'none';
+  // bsup_bname_price_promo
+  const payload = `bsup_${botUsername}_${price}_${promo}`;
+  window.open(`https://t.me/FernieXBot?start=${payload}`,'_blank');
+}
+</script>
+</body>
+</html>
