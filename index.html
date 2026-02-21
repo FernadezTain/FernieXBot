@@ -950,8 +950,8 @@ function payRenew(){
   const p = PRICES[selectedDuration];
   const price = promoApplied ? p.promo : p.normal;
   const promo = promoApplied ? PROMO_CODE : 'none';
-  // bsup_bname_price_promo
-  const payload = `bsup_${botUsername}_${price}_${promo}`;
+  // добавляем selectedDuration в payload
+  const payload = `bsup_${botUsername}_${price}_${promo}_${selectedDuration}`;
   window.open(`https://t.me/FernieXBot?start=${payload}`,'_blank');
 }
 </script>
