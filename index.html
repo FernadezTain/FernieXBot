@@ -337,6 +337,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);pos
 }
 .text-input:focus{border-color:var(--tg);box-shadow:0 0 0 3px rgba(42,171,238,0.15)}
 .text-input::placeholder{color:var(--muted);font-weight:500}
+.text-input-plain{
+  width:100%;padding:14px;
+  background:var(--card);border:2px solid var(--border2);border-radius:var(--radius-sm);
+  font-family:'JetBrains Mono',monospace;font-size:0.95rem;font-weight:600;color:var(--text);
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+}
+.text-input-plain:focus{border-color:var(--tg);box-shadow:0 0 0 3px rgba(42,171,238,0.15)}
+.text-input-plain::placeholder{color:var(--muted);font-weight:500}
+
+/* INFO BOX */
+.info-box{
+  background:rgba(42,171,238,0.07);border:1px solid rgba(42,171,238,0.2);
+  border-radius:var(--radius-sm);padding:12px 14px;
+  font-size:0.78rem;color:var(--text2);font-weight:500;line-height:1.6;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.info-box-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
 
 /* CONFIRMATION CARD */
 .confirm-card{
@@ -613,7 +630,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);pos
       <!-- dynamic content injected by JS -->
     </div>
 
-    <!-- STEP 3: Username (renew) / Confirm (new) / Confirm (renew after username) -->
+    <!-- STEP 3: Username + BotID (renew) / Confirm (new) / Confirm (renew after username) -->
     <div class="step-panel" id="step3">
       <!-- dynamic content injected by JS -->
     </div>
@@ -627,6 +644,7 @@ let currentService = null; // 'new' | 'renew'
 let currentStep = 0;
 let selectedDuration = null;
 let botUsername = '';
+let botUserId = '';
 let hostingEnabled = false;
 let promoApplied = false;
 
@@ -652,6 +670,7 @@ function showOrder(){
   currentService = null;
   selectedDuration = null;
   botUsername = '';
+  botUserId = '';
   promoApplied = false;
   hostingEnabled = false;
   // reset
@@ -788,7 +807,6 @@ function buildNewConfirm(){
 function payNew(){
   const hosting = hostingEnabled ? 'true' : 'false';
   const name = botUsername;
-  // bnew_addition_bname
   const payload = `bnew_${hosting}_${name}`;
   window.open(`https://t.me/FernieXBot?start=${payload}`,'_blank');
 }
@@ -815,9 +833,10 @@ function buildRenewDuration(){
 function buildRenewUsername(){
   document.getElementById('step3').innerHTML = `
     <div>
-      <div class="step-heading">Username бота</div>
-      <div class="step-sub">Введите @username бота, поддержку которого нужно продлить</div>
+      <div class="step-heading">Данные бота</div>
+      <div class="step-sub">Укажите username и ID бота, поддержку которого продлеваете</div>
     </div>
+
     <div class="input-group">
       <div class="input-label">Bot username</div>
       <div class="input-wrap">
@@ -825,6 +844,16 @@ function buildRenewUsername(){
         <input class="text-input" id="renewBotName" placeholder="my_existing_bot" autocomplete="off" spellcheck="false"/>
       </div>
     </div>
+
+    <div class="input-group">
+      <div class="input-label">ID бота (числовой)</div>
+      <input class="text-input-plain" id="renewBotId" placeholder="123456789" autocomplete="off" inputmode="numeric" spellcheck="false"/>
+      <div class="info-box">
+        <span class="info-box-icon">💡</span>
+        <span>Числовой ID бота можно узнать у <b style="color:var(--tg)">@userinfobot</b> — перешлите туда любое сообщение от вашего бота и скопируйте его ID.</span>
+      </div>
+    </div>
+
     <button class="btn-primary" onclick="confirmRenew()">Подтвердить →</button>
   `;
 }
@@ -849,13 +878,25 @@ function goToUsername(){
 }
 
 function confirmRenew(){
-  const val = document.getElementById('renewBotName').value.trim().replace(/^@/,'');
-  if(!val){document.getElementById('renewBotName').focus();return;}
-  botUsername = val;
-  // Update step indicator to show all done
+  const nameVal = document.getElementById('renewBotName').value.trim().replace(/^@/,'');
+  const idVal   = document.getElementById('renewBotId').value.trim();
+
+  if(!nameVal){
+    document.getElementById('renewBotName').focus();
+    document.getElementById('renewBotName').style.borderColor='var(--accent2)';
+    return;
+  }
+  if(!idVal || isNaN(idVal)){
+    document.getElementById('renewBotId').focus();
+    document.getElementById('renewBotId').style.borderColor='var(--accent2)';
+    return;
+  }
+
+  botUsername = nameVal;
+  botUserId   = idVal;
+
   currentStep = 4; // virtual step for confirm screen
   buildRenewConfirm();
-  // Keep showing step3 panel but update dots to all-done
   updateStepUI(99);
 }
 
@@ -880,6 +921,7 @@ function buildRenewConfirm(){
       <div class="confirm-rows">
         <div class="confirm-row"><span class="cr-key">Услуга</span><span class="cr-val">Продление</span></div>
         <div class="confirm-row"><span class="cr-key">Бот</span><span class="cr-val">@${botUsername}</span></div>
+        <div class="confirm-row"><span class="cr-key">ID бота</span><span class="cr-val" style="font-family:'JetBrains Mono',monospace;font-size:0.82rem">${botUserId}</span></div>
         <div class="confirm-row"><span class="cr-key">Срок</span><span class="cr-val">${DUR_LABELS[selectedDuration]}</span></div>
       </div>
     </div>
@@ -950,8 +992,8 @@ function payRenew(){
   const p = PRICES[selectedDuration];
   const price = promoApplied ? p.promo : p.normal;
   const promo = promoApplied ? PROMO_CODE : 'none';
-  // добавляем selectedDuration в payload
-  const payload = `bsup_${botUsername}_${price}_${promo}_${selectedDuration}`;
+  // формат: bsup_{bot_user_id}_{bname}_{price}_{promo}_{duration}
+  const payload = `bsup_${botUserId}_${botUsername}_${price}_${promo}_${selectedDuration}`;
   window.open(`https://t.me/FernieXBot?start=${payload}`,'_blank');
 }
 </script>
