@@ -833,10 +833,9 @@ function buildRenewDuration(){
 function buildRenewUsername(){
   document.getElementById('step3').innerHTML = `
     <div>
-      <div class="step-heading">Данные бота</div>
-      <div class="step-sub">Укажите username и ID бота, поддержку которого продлеваете</div>
+      <div class="step-heading">Username бота</div>
+      <div class="step-sub">Введите @username бота, поддержку которого нужно продлить</div>
     </div>
-
     <div class="input-group">
       <div class="input-label">Bot username</div>
       <div class="input-wrap">
@@ -844,16 +843,6 @@ function buildRenewUsername(){
         <input class="text-input" id="renewBotName" placeholder="my_existing_bot" autocomplete="off" spellcheck="false"/>
       </div>
     </div>
-
-    <div class="input-group">
-      <div class="input-label">ID бота (числовой)</div>
-      <input class="text-input-plain" id="renewBotId" placeholder="123456789" autocomplete="off" inputmode="numeric" spellcheck="false"/>
-      <div class="info-box">
-        <span class="info-box-icon">💡</span>
-        <span>Числовой ID бота можно узнать у <b style="color:var(--tg)">@userinfobot</b> — перешлите туда любое сообщение от вашего бота и скопируйте его ID.</span>
-      </div>
-    </div>
-
     <button class="btn-primary" onclick="confirmRenew()">Подтвердить →</button>
   `;
 }
@@ -879,23 +868,13 @@ function goToUsername(){
 
 function confirmRenew(){
   const nameVal = document.getElementById('renewBotName').value.trim().replace(/^@/,'');
-  const idVal   = document.getElementById('renewBotId').value.trim();
-
   if(!nameVal){
     document.getElementById('renewBotName').focus();
     document.getElementById('renewBotName').style.borderColor='var(--accent2)';
     return;
   }
-  if(!idVal || isNaN(idVal)){
-    document.getElementById('renewBotId').focus();
-    document.getElementById('renewBotId').style.borderColor='var(--accent2)';
-    return;
-  }
-
   botUsername = nameVal;
-  botUserId   = idVal;
-
-  currentStep = 4; // virtual step for confirm screen
+  currentStep = 4;
   buildRenewConfirm();
   updateStepUI(99);
 }
@@ -921,7 +900,6 @@ function buildRenewConfirm(){
       <div class="confirm-rows">
         <div class="confirm-row"><span class="cr-key">Услуга</span><span class="cr-val">Продление</span></div>
         <div class="confirm-row"><span class="cr-key">Бот</span><span class="cr-val">@${botUsername}</span></div>
-        <div class="confirm-row"><span class="cr-key">ID бота</span><span class="cr-val" style="font-family:'JetBrains Mono',monospace;font-size:0.82rem">${botUserId}</span></div>
         <div class="confirm-row"><span class="cr-key">Срок</span><span class="cr-val">${DUR_LABELS[selectedDuration]}</span></div>
       </div>
     </div>
@@ -992,8 +970,8 @@ function payRenew(){
   const p = PRICES[selectedDuration];
   const price = promoApplied ? p.promo : p.normal;
   const promo = promoApplied ? PROMO_CODE : 'none';
-  // формат: bsup_{bot_user_id}_{bname}_{price}_{promo}_{duration}
-  const payload = `bsup_${botUserId}_${botUsername}_${price}_${promo}_${selectedDuration}`;
+  // формат: bsup_{bname}_{price}_{promo}_{duration}
+  const payload = `bsup_${botUsername}_${price}_${promo}_${selectedDuration}`;
   window.open(`https://t.me/FernieXBot?start=${payload}`,'_blank');
 }
 </script>
